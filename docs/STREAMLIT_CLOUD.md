@@ -6,6 +6,8 @@ Use the `financial_distress/` directory as the **repository root** (recommended)
 
 Do **not** commit `.env` or `.streamlit/secrets.toml` (they are gitignored). Large data (`data/ECL (1).csv`) and `checkpoints/` are usually excluded—see below.
 
+**Git LFS:** `graph.pt`, `model.joblib`, and large processed tabular CSVs are tracked with [Git LFS](https://git-lfs.github.com/) (see `.gitattributes`). For a local clone, install Git LFS and run `git lfs install` once, then `git clone` as usual. Streamlit Cloud pulls LFS objects from GitHub when it builds the app.
+
 ## 2. App settings on [share.streamlit.io](https://share.streamlit.io)
 
 | Setting | Value |

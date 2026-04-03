@@ -1,0 +1,17 @@
+.env
+.env.local
+.streamlit/secrets.toml
+
+__pycache__/
+*.py[cod]
+*.pyo
+.DS_Store
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Large / local artifacts — keep repo small for GitHub / Streamlit Cloud
+data/ECL*.csv
+data/raw/mda_texts/
+checkpoints/multimodal/
+checkpoints/training_report.html

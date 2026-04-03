@@ -1,0 +1,4 @@
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.joblib filter=lfs diff=lfs merge=lfs -text
+data/processed/tabular.csv filter=lfs diff=lfs merge=lfs -text
+data/processed/tabular_partial.csv filter=lfs diff=lfs merge=lfs -text

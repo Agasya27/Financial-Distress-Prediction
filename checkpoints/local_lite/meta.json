@@ -1,0 +1,68 @@
+{
+  "best_model_name": "hist_gbdt",
+  "best_val_pr_auc": 0.025086707084070188,
+  "created_at": "2026-04-03T16:51:44Z",
+  "features": [
+    "assets",
+    "current_assets",
+    "current_liabilities",
+    "total_liabilities",
+    "revenue",
+    "net_income",
+    "cash",
+    "ebit",
+    "depreciation",
+    "short_term_debt",
+    "long_term_debt",
+    "inventory",
+    "accounts_payable",
+    "retained_earnings",
+    "equity",
+    "current_ratio",
+    "debt_ratio",
+    "return_on_assets",
+    "return_on_equity",
+    "working_capital",
+    "asset_turnover",
+    "debt_to_equity",
+    "cash_ratio",
+    "operating_margin",
+    "inventory_turnover",
+    "mda_char_count",
+    "mda_word_count",
+    "mda_log_char_count",
+    "mda_log_word_count",
+    "graph_degree"
+  ],
+  "label_positive_meaning": "distress / bankruptcy (ECL label=1)",
+  "model_selection": [
+    {
+      "name": "hist_gbdt",
+      "val_pr_auc": 0.025086707084070188
+    },
+    {
+      "name": "random_forest",
+      "val_pr_auc": 0.021550256798733992
+    },
+    {
+      "name": "extra_trees",
+      "val_pr_auc": 0.01622368080294684
+    },
+    {
+      "name": "log_reg",
+      "val_pr_auc": 0.010800179153483315
+    },
+    {
+      "name": "weighted_ensemble",
+      "val_pr_auc": 0.02230818631760446
+    }
+  ],
+  "n_rows_test": 16931,
+  "n_rows_total": 84652,
+  "n_rows_train": 67721,
+  "positive_rate_train": 0.008180623440291785,
+  "probability_calibration": "sigmoid_3fold",
+  "recommended_threshold": 0.03442936624394008,
+  "use_graph_degree": true,
+  "use_text_stats": true
+}

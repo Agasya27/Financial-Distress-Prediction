@@ -1,0 +1,56 @@
+data:
+  ecl_csv_path: "data/ecl (1).csv"
+  tabular_features: 25
+  max_text_chunks: 10
+  modality_mask_prob: 0.3
+  # Verified Step 1 dataset stats (accepted baseline)
+  filtered_rows: 75518
+  unique_companies: 7926
+  bankruptcy_rate: 0.0079
+  filing_year_start: 1993
+  filing_year_end: 2021
+  # SEC-compliant request identity for Step 2 API calls
+  sec_user_agent: "RCOEM Student agasyabutolia@gmail.com"
+  # Step 2 test-batch controls (keep test mode first)
+  test_batch_cik_limit: 500
+  intermediate_save_every_ciks: 100
+  run_full_ciks: true
+  # Step 3: FinBERT embedding checkpoints (Colab disconnect / long runs)
+  embedding_checkpoint_every: 1000
+  embedding_partial_path: "data/processed/text_embeddings_partial.pt"
+
+model:
+  ft_transformer:
+    d_token: 64
+    n_blocks: 3
+    attention_heads: 8
+    dropout: 0.1
+  lstm:
+    hidden_size: 256
+    num_layers: 2
+    bidirectional: true
+    dropout: 0.2
+  gat:
+    hidden_channels: 128
+    num_layers: 2
+    heads: 4
+    dropout: 0.1
+  cvae:
+    latent_dim: 128
+    hidden_dim: 256
+  fusion:
+    output_dim: 256
+
+training:
+  batch_size: 32
+  epochs: 50
+  learning_rate: 3e-4
+  weight_decay: 1e-5
+  amp: true
+  grad_accumulation_steps: 4
+  early_stopping_patience: 10
+
+output:
+  anomaly_score: true
+  attention_weights: true
+  checkpoint_path: "checkpoints/best_model.pt"

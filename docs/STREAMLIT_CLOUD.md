@@ -4,9 +4,9 @@
 
 Use the `financial_distress/` directory as the **repository root** (recommended), or note the subpath if the repo contains a parent folder.
 
-Do **not** commit `.env` or `.streamlit/secrets.toml` (they are gitignored). Large data (`data/ECL (1).csv`) and `checkpoints/` are usually excluded—see below.
+Do **not** commit `.env` or `.streamlit/secrets.toml` (they are gitignored). The raw ECL CSV (`data/ECL (1).csv`) is in the repo via **Git LFS**; `data/raw/mda_texts/` and `checkpoints/multimodal/` stay gitignored (very large).
 
-**Git LFS:** `graph.pt`, `model.joblib`, and large processed tabular CSVs are tracked with [Git LFS](https://git-lfs.github.com/) (see `.gitattributes`). For a local clone, install Git LFS and run `git lfs install` once, then `git clone` as usual. Streamlit Cloud pulls LFS objects from GitHub when it builds the app.
+**Git LFS:** Raw ECL CSV, `graph.pt`, `model.joblib`, and large processed tabular CSVs are tracked with [Git LFS](https://git-lfs.github.com/) (see `.gitattributes`). For a local clone, install Git LFS and run `git lfs install` once, then `git clone` as usual. Streamlit Cloud pulls LFS objects from GitHub when it builds the app.
 
 ## 2. App settings on [share.streamlit.io](https://share.streamlit.io)
 
@@ -47,7 +47,7 @@ The UI expects, by default:
 
 **Options:**
 
-1. **Commit small samples** (not the full ECL CSV) for a public demo, **or**
+1. **Use the committed ECL CSV** (Git LFS) for a full local pipeline, **or** a smaller sample CSV if you fork and want a tiny public demo, **or**
 2. **Attach files** in Streamlit Cloud (if your plan supports persistent storage), **or**
 3. **Build with Git LFS** for `tabular.csv` + `model.joblib` (watch size limits).
 

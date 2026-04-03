@@ -11,7 +11,7 @@ __pycache__/
 .ruff_cache/
 
 # Large / local artifacts — keep repo small for GitHub / Streamlit Cloud
-data/ECL*.csv
+# Raw ECL CSV is tracked (Git LFS); see .gitattributes
 data/raw/mda_texts/
 checkpoints/multimodal/
 checkpoints/training_report.html

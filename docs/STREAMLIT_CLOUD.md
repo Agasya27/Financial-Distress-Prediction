@@ -10,6 +10,11 @@ Do **not** commit `.env` or `.streamlit/secrets.toml` (they are gitignored). Lar
 
 ## 2. App settings on [share.streamlit.io](https://share.streamlit.io)
 
+1. Sign in → **Create app** (or **New app**).
+2. **Repository:** `Agasya27/Financial-Distress-Prediction` (or paste `https://github.com/Agasya27/Financial-Distress-Prediction`).
+3. **Branch:** `main`.
+4. Apply the table below, then **Deploy**.
+
 | Setting | Value |
 |--------|--------|
 | **Main file path** | `app/streamlit_app.py` |
@@ -18,6 +23,8 @@ Do **not** commit `.env` or `.streamlit/secrets.toml` (they are gitignored). Lar
 | **Python** | `runtime.txt` pins **3.11** (Streamlit reads it from the repo root). |
 
 If your repo root is **above** `financial_distress/`, set the main file to `financial_distress/app/streamlit_app.py` and, if the UI allows, set the working directory to `financial_distress`.
+
+**Pre-flight (optional):** from the repo root, `python3 scripts/check_streamlit_cloud_ready.py` checks required paths, LFS smudge, and imports.
 
 ## 3. Secrets (OpenRouter)
 

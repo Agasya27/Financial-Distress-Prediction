@@ -4,7 +4,8 @@
 streamlit>=1.28.0
 pandas>=2.0.0
 numpy>=1.24.0
-scikit-learn>=1.3.0
+# Pinned to match the version used to serialize `checkpoints/local_lite/model.joblib`.
+scikit-learn==1.3.2
 joblib>=1.3.0
 plotly>=5.17.0
 requests>=2.31.0

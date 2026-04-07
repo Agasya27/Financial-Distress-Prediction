@@ -66,3 +66,18 @@ python3 -m streamlit run app/streamlit_app.py
 ```
 
 Use `requirements.txt` for full multimodal + SEC training locally.
+
+---
+
+## Alternative deployment: Render (Docker)
+
+If Streamlit Community Cloud fails to deploy (common when large artifacts or Git LFS are involved), Render is a practical alternative.
+
+1. Create a new **Web Service** on Render and connect the GitHub repo.
+2. Set **Root Directory** to `financial_distress`.
+3. Choose **Docker** runtime (the repo includes `Dockerfile`).
+4. Add environment variables:
+   - `OPENROUTER_API_KEY` (optional; enables AI summaries)
+   - `OPENROUTER_MODEL` (optional)
+
+The container runs Streamlit on port 8501 (`0.0.0.0`).

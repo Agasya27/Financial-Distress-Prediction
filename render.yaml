@@ -2,7 +2,6 @@ services:
   - type: web
     name: financial-distress-streamlit
     runtime: docker
-    rootDir: financial_distress
     plan: free
     autoDeploy: true
     envVars:

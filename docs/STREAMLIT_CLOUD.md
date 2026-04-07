@@ -74,8 +74,8 @@ Use `requirements.txt` for full multimodal + SEC training locally.
 If Streamlit Community Cloud fails to deploy (common when large artifacts or Git LFS are involved), Render is a practical alternative.
 
 1. Create a new **Web Service** on Render and connect the GitHub repo.
-2. Set **Root Directory** to `financial_distress`.
-3. Choose **Docker** runtime (the repo includes `Dockerfile`).
+2. Keep **Root Directory** empty / default (this repo’s root already contains `app/`, `src/`, and `Dockerfile`).
+3. Choose **Docker** runtime (the repo includes `Dockerfile`) or use the included `render.yaml` Blueprint.
 4. Add environment variables:
    - `OPENROUTER_API_KEY` (optional; enables AI summaries)
    - `OPENROUTER_MODEL` (optional)

@@ -87,6 +87,7 @@ def load_feature_table(
     use_text_stats: bool = True,
     use_graph_degree: bool = True,
     max_rows: int = 0,
+    required_features: list[str] | None = None,
 ) -> tuple[pd.DataFrame, np.ndarray, list[str], pd.DataFrame]:
     """
     Build model-ready matrix X and label vector y.
@@ -107,18 +108,28 @@ def load_feature_table(
     if "label" not in df.columns:
         raise ValueError("Tabular data missing 'label' column.")
 
+    # Optional feature sources. For deployment, callers can disable these to avoid
+    # loading large artifacts; if `required_features` asks for these columns we
+    # will add zero-filled placeholders later.
     if use_text_stats:
         df = _add_text_stats(df, mda_dir)
     if use_graph_degree:
         df = _add_graph_degree(df, graph_path)
 
-    numeric_cols = []
-    for c in df.columns:
-        if c in BASE_TABULAR_DROP:
-            continue
-        numeric_cols.append(c)
+    numeric_cols: list[str] = [c for c in df.columns if c not in BASE_TABULAR_DROP]
 
-    x_df = df[numeric_cols].apply(pd.to_numeric, errors="coerce")
+    # Downcast to reduce memory footprint for deployment environments.
+    x_df = df[numeric_cols].apply(pd.to_numeric, errors="coerce").astype(np.float32)
+
+    if required_features:
+        # Ensure a stable schema for already-trained models without forcing the
+        # app to load MD&A files or graph artifacts.
+        for c in required_features:
+            if c not in x_df.columns:
+                x_df[c] = np.float32(0.0)
+        # Drop extras and preserve ordering
+        x_df = x_df[[c for c in required_features]]
+        numeric_cols = list(x_df.columns)
     y = df["label"].astype(int).to_numpy()
     base_df = df[["cik", "datadate", "label"]].copy()
     return x_df, y, numeric_cols, base_df

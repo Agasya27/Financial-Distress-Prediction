@@ -51,7 +51,9 @@ DEFAULT_MM_EVAL_METRICS = "checkpoints/multimodal/metrics_eval.json"
 DEFAULT_LOCAL_EVAL_METRICS = "checkpoints/local_lite/metrics_eval.json"
 DEFAULT_BLEND_METRICS = "checkpoints/blend_metrics_eval.json"
 DEFAULT_TRAINING_REPORT_HTML = "checkpoints/training_report.html"
-DEFAULT_TABULAR = "data/processed/tabular.csv"
+# Render/low-memory deployments: prefer the smaller processed table by default.
+# You can switch back to `tabular.csv` in the sidebar if desired.
+DEFAULT_TABULAR = "data/processed/tabular_partial.csv"
 DEFAULT_MDA_DIR = "data/raw/mda_texts"
 DEFAULT_GRAPH = "data/processed/graph.pt"
 
@@ -64,6 +66,7 @@ def _cached_scoring_bundle(
     graph_path: str,
     use_text_stats: bool,
     use_graph_degree: bool,
+    required_features: list[str] | None,
 ) -> tuple[Any, pd.DataFrame, Any, pd.DataFrame, np.ndarray]:
     """Load sklearn model + full feature table + portfolio probabilities. Heavy; keyed by paths/flags."""
     model = joblib.load(model_path)
@@ -73,6 +76,7 @@ def _cached_scoring_bundle(
         graph_path=graph_path,
         use_text_stats=use_text_stats,
         use_graph_degree=use_graph_degree,
+        required_features=required_features,
     )
     probs = model.predict_proba(x_df)[:, 1]
     return model, x_df, y, base_df, probs
@@ -507,8 +511,9 @@ with st.sidebar:
     tabular_path = st.text_input("Tabular CSV", DEFAULT_TABULAR)
     mda_dir = st.text_input("MD&A folder", DEFAULT_MDA_DIR)
     graph_path = st.text_input("Graph path", DEFAULT_GRAPH)
-    use_text = st.checkbox("Use text stats", value=True)
-    use_graph = st.checkbox("Use graph degree", value=True)
+    # Default these off for memory-constrained deployments (Render free tier).
+    use_text = st.checkbox("Use text stats", value=False)
+    use_graph = st.checkbox("Use graph degree", value=False)
     top_k = st.number_input("Top K high-risk rows", min_value=10, max_value=5000, value=100, step=10)
     st.divider()
     if _DOTENV_HINT:
@@ -528,6 +533,13 @@ if not os.path.exists(tabular_path):
     st.warning(f"Tabular CSV not found: `{tabular_path}`.")
     st.stop()
 
+# Load metadata early so we can enforce the expected feature schema without
+# forcing the app to load large optional artifacts (graph/text) on small hosts.
+model_meta: dict[str, Any] = _cached_json_file(meta_path)
+required_features = model_meta.get("features")
+if not isinstance(required_features, list) or not required_features:
+    required_features = None
+
 try:
     model, x_df, y, base_df, probs = _cached_scoring_bundle(
         model_path=model_path,
@@ -536,12 +548,11 @@ try:
         graph_path=graph_path,
         use_text_stats=use_text,
         use_graph_degree=use_graph,
+        required_features=required_features,
     )
 except Exception as exc:
     st.error(f"Failed to load model or features: {exc}")
     st.stop()
-
-model_meta: dict[str, Any] = _cached_json_file(meta_path)
 train_metrics: dict[str, Any] = _cached_json_file(metrics_path)
 blend_metrics: dict[str, Any] = _cached_json_file(blend_metrics_path)
 training_llm_context = _training_snapshot_for_llm(

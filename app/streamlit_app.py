@@ -306,6 +306,97 @@ def _confidence_from_margin(risk: float, threshold: float) -> float:
     return float(np.clip(margin / 0.25, 0.0, 1.0))
 
 
+def _inject_ui_styles() -> None:
+    """Global layout and component polish (works with Streamlit light theme)."""
+    st.markdown(
+        """
+        <style>
+            .main .block-container {
+                padding-top: 1.25rem;
+                padding-bottom: 2.5rem;
+                max-width: 1180px;
+            }
+            div[data-testid="stSidebarContent"] {
+                padding-top: 1.5rem;
+            }
+            div[data-testid="stSidebarContent"] .stMarkdown h1,
+            div[data-testid="stSidebarContent"] .stMarkdown h2,
+            div[data-testid="stSidebarContent"] .stMarkdown h3 {
+                font-size: 0.95rem;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+                color: #5c6b7f;
+                margin-top: 0.35rem;
+                margin-bottom: 0.35rem;
+            }
+            div[data-testid="stSidebarContent"] hr {
+                margin: 1rem 0;
+                border-color: rgba(13, 110, 110, 0.15);
+            }
+            [data-testid="stMetricContainer"] {
+                background: #ffffff;
+                border: 1px solid #dde4ec;
+                border-radius: 12px;
+                padding: 0.65rem 0.85rem;
+                box-shadow: 0 1px 3px rgba(20, 27, 45, 0.06);
+            }
+            [data-testid="stMetricValue"] {
+                font-variant-numeric: tabular-nums;
+            }
+            .stTabs [data-baseweb="tab-list"] {
+                gap: 6px;
+                background: transparent;
+                border-bottom: 1px solid #d0d8e4;
+                margin-bottom: 0.5rem;
+            }
+            .stTabs [data-baseweb="tab"] {
+                border-radius: 10px 10px 0 0;
+                padding: 0.55rem 1rem;
+                font-weight: 500;
+            }
+            .stTabs [aria-selected="true"] {
+                font-weight: 600;
+            }
+            div[data-testid="stExpander"] details {
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                background: #fafbfd;
+            }
+            .fd-hero {
+                background: linear-gradient(125deg, #0f3d4a 0%, #0d6e6e 48%, #1a5f7a 100%);
+                padding: 1.5rem 1.35rem 1.35rem 1.35rem;
+                border-radius: 14px;
+                margin-bottom: 1rem;
+                box-shadow: 0 8px 24px rgba(15, 61, 74, 0.18);
+            }
+            .fd-hero h1 {
+                color: #f8fafc;
+                font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+                font-weight: 650;
+                letter-spacing: -0.03em;
+                line-height: 1.2;
+                margin: 0 0 0.5rem 0;
+                border: none;
+            }
+            .fd-hero p {
+                color: rgba(248, 250, 252, 0.9);
+                font-size: 0.95rem;
+                line-height: 1.55;
+                margin: 0;
+            }
+            .fd-tab-lead {
+                color: #4a5a6e;
+                font-size: 0.95rem;
+                line-height: 1.55;
+                margin: 0 0 1rem 0;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def _metric_row_ui(prefix: str, data: dict) -> None:
     keys = ("roc_auc", "pr_auc", "precision", "recall", "f1", "threshold")
     if not data or not any(k in data for k in keys):
@@ -397,7 +488,11 @@ def _ai_prediction_panel(
     context: dict[str, Any],
     state_prefix: str,
 ) -> None:
-    st.markdown("#### AI narrative (OpenRouter)")
+    st.markdown("##### AI narrative (OpenRouter)")
+    st.markdown(
+        '<p class="fd-tab-lead">Optional plain-language summary of this prediction using your OpenRouter key.</p>',
+        unsafe_allow_html=True,
+    )
     api_key = _openrouter_key_resolved()
     if not api_key:
         st.caption("Configure **`OPENROUTER_API_KEY`** in project `.env` (or Streamlit secrets) to enable.")
@@ -490,19 +585,29 @@ st.set_page_config(
     page_title="Financial Distress Predictor",
     layout="wide",
     initial_sidebar_state="expanded",
+    page_icon="📊",
 )
-st.title("Financial Distress & Bankruptcy Risk")
-st.caption(
-    "Model output: **probability of financial distress** (same as bankruptcy-related label in the ECL dataset). "
-    "Higher score → higher predicted risk. Not legal or investment advice."
+_inject_ui_styles()
+st.markdown(
+    """
+    <div class="fd-hero">
+        <h1>Financial distress & bankruptcy risk</h1>
+        <p>
+            Model output is the <strong>probability of financial distress</strong>
+            (aligned with the bankruptcy-related label in the ECL dataset).
+            Higher scores indicate higher predicted risk. Not legal or investment advice.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 with st.sidebar:
-    st.header("Paths")
+    st.markdown("### Configuration")
     model_path = st.text_input("Model path", DEFAULT_MODEL)
     meta_path = st.text_input("Meta path", DEFAULT_META)
     metrics_path = st.text_input("Training metrics path", DEFAULT_METRICS)
-    st.markdown("**Training Insights**")
+    st.markdown("##### Training insights")
     mm_train_path = st.text_input("Multimodal train metrics JSON", DEFAULT_MM_TRAIN_METRICS)
     mm_eval_path = st.text_input("Multimodal eval metrics JSON", DEFAULT_MM_EVAL_METRICS)
     local_eval_path = st.text_input("Local lite eval metrics JSON", DEFAULT_LOCAL_EVAL_METRICS)
@@ -520,8 +625,8 @@ with st.sidebar:
         st.warning(_DOTENV_HINT)
     elif not _openrouter_key_resolved():
         st.caption(
-            "OpenRouter: add **`OPENROUTER_API_KEY`** to `financial_distress/.env` "
-            "(copy `.env.example` → `.env`). If `.env` exists on another computer, copy it here or use Streamlit Cloud secrets."
+            "OpenRouter: add **`OPENROUTER_API_KEY`** to the project **`.env`** "
+            "(copy `.env.example` → `.env`). On another machine, copy `.env` or use Streamlit Cloud secrets."
         )
         st.caption(_openrouter_missing_key_help())
 
@@ -583,13 +688,18 @@ col3.metric("Historical distress rate (data)", f"{result_df['label'].mean():.2%}
 st.caption(
     f"Decision threshold (F1-tuned on holdout): **{thr_default:.3f}** — scores above this are flagged as distressed."
 )
+st.divider()
 
 tab_scoring, tab_upload, tab_context, tab_eda, tab_insights = st.tabs(
-    ["Portfolio Scoring", "Upload Your Records", "Contextual Analysis", "EDA", "Training Insights"]
+    ["Portfolio scoring", "Upload records", "Contextual analysis", "EDA", "Training insights"]
 )
 
 with tab_scoring:
-    st.subheader("Highest predicted bankruptcy / distress risk")
+    st.subheader("Highest predicted distress risk")
+    st.markdown(
+        '<p class="fd-tab-lead">Sorted by model probability; export the full scored table below.</p>',
+        unsafe_allow_html=True,
+    )
     st.dataframe(result_df.head(int(top_k)), width="stretch")
     csv = result_df.to_csv(index=False).encode("utf-8")
     st.download_button(
@@ -597,11 +707,15 @@ with tab_scoring:
         data=csv,
         file_name="local_lite_scored.csv",
         mime="text/csv",
+        type="primary",
     )
 
 with tab_upload:
     st.subheader("Upload records and score")
-    st.write("Simple CSV works. You can upload only key ratios; missing fields are auto-completed using dataset medians.")
+    st.markdown(
+        '<p class="fd-tab-lead">A simple CSV is enough. Partial columns are fine — missing fields are filled from dataset medians.</p>',
+        unsafe_allow_html=True,
+    )
     st.caption("Recommended simple columns: debt_to_equity, return_on_assets, return_on_equity, current_ratio, net_profit_margin, revenue_growth_pct")
     uploaded = st.file_uploader("Upload CSV", type=["csv"])
     if uploaded is not None:
@@ -716,8 +830,11 @@ with tab_upload:
         st.bar_chart(up_hist_df.set_index("bin"))
 
 with tab_context:
-    st.subheader("Meaningful Input -> Contextual Output")
-    st.write("Enter 6 simple ratios. The app auto-maps them to model features and explains the result in business language.")
+    st.subheader("Ratios → contextual output")
+    st.markdown(
+        '<p class="fd-tab-lead">Enter six ratios below. They map to model features; you get plain-language risk context vs the full dataset.</p>',
+        unsafe_allow_html=True,
+    )
     if "ctx_panel_visible" not in st.session_state:
         st.session_state["ctx_panel_visible"] = False
     c1, c2, c3 = st.columns(3)
@@ -877,7 +994,11 @@ with tab_context:
         )
 
 with tab_eda:
-    st.subheader("Dataset EDA")
+    st.subheader("Dataset exploration")
+    st.markdown(
+        '<p class="fd-tab-lead">Label balance, score distribution, and missingness for the loaded feature table.</p>',
+        unsafe_allow_html=True,
+    )
     col_a, col_b = st.columns(2)
     col_a.metric("Total rows", f"{len(result_df):,}")
     col_b.metric("Positive labels", f"{int(result_df['label'].sum()):,}")
@@ -903,11 +1024,12 @@ with tab_eda:
     st.dataframe((miss * 100).rename("missing_pct").to_frame(), width="stretch")
 
 with tab_insights:
-    st.header("Training Insights")
+    st.subheader("Training insights")
     st.markdown(
-        "Interactive charts compare **multimodal fusion** (neural) vs **local lite** (sklearn) using the "
-        "checkpoint JSON files under `checkpoints/`. Regenerate the static HTML with "
-        "`python3 -m src.training_report --out checkpoints/training_report.html` from the project root."
+        '<p class="fd-tab-lead">Charts compare <strong>multimodal fusion</strong> (neural) and <strong>local lite</strong> (sklearn) from '
+        "checkpoint JSON under <code>checkpoints/</code>. Regenerate static HTML with "
+        "<code>python3 -m src.training_report --out checkpoints/training_report.html</code> from the project root.</p>",
+        unsafe_allow_html=True,
     )
 
     try:
@@ -999,7 +1121,7 @@ with tab_insights:
                 else:
                     st.warning("Last run returned an empty training summary. Try another `OPENROUTER_MODEL` in `.env`.")
     else:
-        st.caption("Set **`OPENROUTER_API_KEY`** in `financial_distress/.env` (or deployment secrets) to use this.")
+        st.caption("Set **`OPENROUTER_API_KEY`** in the project **`.env`** (or deployment secrets) to use this.")
         st.caption(_openrouter_missing_key_help())
 
     st.divider()

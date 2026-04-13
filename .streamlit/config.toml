@@ -8,4 +8,9 @@ gatherUsageStats = false
 
 [theme]
 base = "light"
-primaryColor = "#1f4e79"
+# Teal-navy accent; tuned for charts and primary actions
+primaryColor = "#0d6e6e"
+backgroundColor = "#eef2f6"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#141b2d"
+font = "sans serif"
